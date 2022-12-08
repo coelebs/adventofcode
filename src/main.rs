@@ -12,6 +12,7 @@ fn main() {
             day2::part2();
         } else if arg1 == "day3" {
             day3::part1();
+            day3::part2();
         }
     }
 }
