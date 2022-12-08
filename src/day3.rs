@@ -1,5 +1,4 @@
 use std::collections::HashSet;
-use std::slice::Chunks;
 
 fn value_of_package(package: char) -> u32 {
     let value;
