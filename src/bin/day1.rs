@@ -1,8 +1,9 @@
-use std::collections::HashMap;
-use std::collections::VecDeque;
+use env_logger::Env;
+use log::{debug, info};
+use std::collections::{HashMap, VecDeque};
 use std::fs;
 
-fn find_number(val: &str, revers: bool) -> String {
+fn find_number(val: &str, revers: bool, part2: bool) -> String {
     let mut letters: VecDeque<char> = val.chars().collect();
     let replacements = HashMap::from([
         ("one", "1"),
@@ -23,8 +24,10 @@ fn find_number(val: &str, revers: bool) -> String {
             result.push(letters.pop_front().expect("Should be a letter to pop"));
         }
 
-        for (key, value) in replacements.iter() {
-            result = result.replace(key, value)
+        if part2 {
+            for (key, value) in replacements.iter() {
+                result = result.replace(key, value)
+            }
         }
 
         let clean: String = result.chars().filter(|x| x.is_numeric()).collect();
@@ -36,13 +39,13 @@ fn find_number(val: &str, revers: bool) -> String {
     return "0".to_string();
 }
 
-fn determine_calibration(val: &str) -> u32 {
+fn determine_calibration(val: &str, part2: bool) -> u32 {
     if val.is_empty() {
         return 0;
     }
-    let mut numstring = find_number(val, false);
-    numstring.push_str(&find_number(val, true));
-    println!("{}", numstring);
+    let mut numstring = find_number(val, false, part2);
+    numstring.push_str(&find_number(val, true, part2));
+    debug!("{}", numstring);
 
     return numstring
         .parse::<u32>()
@@ -50,11 +53,15 @@ fn determine_calibration(val: &str) -> u32 {
 }
 
 fn main() {
+    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
     let input = fs::read_to_string("input1.txt").expect("Should be able to read input");
-    let mut result: u32 = 0;
+    let mut result1: u32 = 0;
+    let mut result2: u32 = 0;
     for line in input.split("\n") {
-        println!("{}", line);
-        result += determine_calibration(line);
+        debug!("{}", line);
+        result1 += determine_calibration(line, false);
+        result2 += determine_calibration(line, true);
     }
-    println!("Calibration total = {:?}", result);
+    info!("Calibration total = {:?}", result1);
+    info!("Calibration total, with written numbers = {:?}", result2);
 }

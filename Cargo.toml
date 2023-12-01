@@ -6,3 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+env_logger = "*"
+log = "*"
+
+[[bin]]
+name = "day1"
+src = "src/day1.rs"
