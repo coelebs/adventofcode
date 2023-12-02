@@ -11,4 +11,6 @@ log = "*"
 
 [[bin]]
 name = "day1"
-src = "src/day1.rs"
+
+[[bin]]
+name = "day2"
