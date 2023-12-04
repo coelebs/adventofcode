@@ -1,8 +1,6 @@
-use env_logger::Env;
-use log::{debug, error, info};
+use log::{debug, info};
 use std::collections::HashSet;
-use std::env;
-use std::fs;
+use aoclib::aocinit;
 
 fn points_from_line(line: &str) -> u32 {
     debug!("{line}");
@@ -28,12 +26,16 @@ fn day4(input: String) {
     let mut result2: u32 = 0;
     let mut copies = Vec::new();
 
-    for line in input.trim().split("\n") {
+    for line in input.split("\n") {
         let score = points_from_line(line);
 
         let cards: u32 = (copies.len() + 1).try_into().unwrap();
         debug!("{cards} copies");
-        copies = copies.iter().map(|x| *x - 1).filter(|x| *x > 0).collect::<Vec<u32>>();
+        copies = copies
+            .iter()
+            .map(|x| *x - 1)
+            .filter(|x| *x > 0)
+            .collect::<Vec<u32>>();
 
         if score > 0 {
             result1 += u32::pow(2, score - 1);
@@ -50,16 +52,5 @@ fn day4(input: String) {
 }
 
 fn main() {
-    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
-    let args: Vec<String> = env::args().collect();
-    if args.len() != 2 {
-        error!("usage: {} <FILENAME>", args[0]);
-        return; //TODO figure out returning errors without creating my own
-    }
-
-    let input = fs::read_to_string(&args[1])
-        .expect("Should be able to read input")
-        .trim()
-        .to_string();
-    day4(input);
+    aocinit(day4);
 }

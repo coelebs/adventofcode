@@ -9,6 +9,10 @@ edition = "2021"
 env_logger = "*"
 log = "*"
 
+[lib]
+name = "aoclib"
+path = "src/lib.rs"
+
 [[bin]]
 name = "day1"
 
