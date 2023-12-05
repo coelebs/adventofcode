@@ -1,5 +1,4 @@
-use std::env;
-use std::fs;
+use std::{env, fs, time::Instant};
 use env_logger::Env;
 use log::error;
 
@@ -15,5 +14,9 @@ pub fn aocinit(callback :fn(String)) {
         .expect("Should be able to read input")
         .trim()
         .to_string();
+
+    let now = Instant::now();
     callback(input);
+    let elapsed = now.elapsed();
+    println!("Solution took: {:.2?}", elapsed);
 }
