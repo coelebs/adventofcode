@@ -29,23 +29,12 @@ fn process_section(section: &str, seedmap: &mut Vec<[i64; 8]>, step: usize) {
     }
 }
 
-fn day5(input: String) {
-    let mut sections = input.split("\n\n").collect::<VecDeque<&str>>();
-
-    let seeds: Vec<i64> = sections.pop_front().unwrap()
-        .split_once(":")
-        .unwrap()
-        .1
-        .split(" ")
-        .filter(|x| !x.trim().is_empty())
-        .map(|x| x.parse::<i64>().unwrap_or(-1))
-        .collect();
+fn part1(seeds: &Vec<i64>, mut sections: VecDeque<&str>) {
     let mut seedmap = vec![[-1; 8]; seeds.len()];
 
     for (idx, seed) in seeds.iter().enumerate() {
         seedmap[idx][0] = *seed;
     }
-
 
     let mut step = 1;
     while sections.len() > 0 {
@@ -59,8 +48,46 @@ fn day5(input: String) {
     }
 
     let mut result1 = i64::MAX;
-    seedmap.iter().for_each(|x| if x[7] < result1 { result1 = x[7]});
+    seedmap.iter().for_each(|x| {
+        if x[7] < result1 {
+            result1 = x[7]
+        }
+    });
     info!("Lowest location seed: {result1}");
+}
+
+fn part2(_seeds: &Vec<i64>, mut sections: VecDeque<&str>) {
+    //create ranges
+    let mut ranges: Vec<Vec<Vec<i64>>> = vec![];
+    ranges.resize(sections.len(), vec![vec![0]]);
+
+    while sections.len() > 0 {
+        let section = sections.pop_back().unwrap();
+
+        section.lines().skip(1).for_each(|x| {
+            ranges[sections.len()].push(x.split(" ").map(|x| x.parse::<i64>().unwrap()).collect())
+        });
+    }
+
+    debug!("{:?}", ranges);
+}
+
+fn day5(input: String) {
+    let mut sections = input.split("\n\n").collect::<VecDeque<&str>>();
+
+    let seeds: Vec<i64> = sections
+        .pop_front()
+        .unwrap()
+        .split_once(":")
+        .unwrap()
+        .1
+        .split(" ")
+        .filter(|x| !x.trim().is_empty())
+        .map(|x| x.parse::<i64>().unwrap_or(-1))
+        .collect();
+
+    part1(&seeds, sections.clone());
+    part2(&seeds, sections);
 }
 
 fn main() {
