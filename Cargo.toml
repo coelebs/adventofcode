@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 env_logger = "*"
 log = "*"
+itertools = "*"
 
 [lib]
 name = "aoclib"
@@ -27,3 +28,6 @@ name = "day4"
 
 [[bin]]
 name = "day5"
+
+[[bin]]
+name = "day6"
