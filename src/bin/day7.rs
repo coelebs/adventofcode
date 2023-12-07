@@ -52,7 +52,9 @@ fn score(a: &str) -> u8 {
     };
 }
 
-static KINDS: &'static [char] = &['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
+static KINDS: &'static [char] = &[
+    'A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2',
+];
 fn compare(a: &str, b: &str) -> Ordering {
     let ascore = score(a);
     let bscore = score(b);
@@ -82,6 +84,46 @@ fn compare(a: &str, b: &str) -> Ordering {
     return Ordering::Equal;
 }
 
+static JOKERKINDS: &'static [char] = &[
+    'A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J'
+];
+fn joker_compare(a: &str, b: &str) -> Ordering {
+    let ascore = JOKERKINDS
+        .iter()
+        .map(|x| score(&a.replace("J", &x.to_string())))
+        .max()
+        .unwrap();
+    let bscore = JOKERKINDS
+        .iter()
+        .map(|x| score(&b.replace("J", &x.to_string())))
+        .max()
+        .unwrap();
+
+    if ascore > bscore {
+        return Ordering::Greater;
+    } else if ascore < bscore {
+        return Ordering::Less;
+    }
+
+    let cmb = a.chars().zip(b.chars());
+
+    for ab in cmb {
+        if ab.0 == ab.1 {
+            continue;
+        }
+
+        let aval = JOKERKINDS.iter().position(|&c| c == ab.0).unwrap();
+        let bval = JOKERKINDS.iter().position(|&c| c == ab.1).unwrap();
+        debug!("Comparing {a} and {b}:");
+        debug!(" a: {aval}");
+        debug!(" b: {bval}");
+
+        return bval.cmp(&aval);
+    }
+
+    return Ordering::Equal;
+}
+
 fn day7(input: String) {
     let mut camel_deck: Vec<(&str, u64)> = input
         .lines()
@@ -100,6 +142,15 @@ fn day7(input: String) {
         .map(|x| x.0 * (x.1 .1))
         .sum();
     info!("Camel card winnings: {result1}");
+
+    camel_deck.sort_by(|a, b| joker_compare(a.0, b.0));
+    let result2: u64 = camel_deck
+        .iter()
+        .enumerate()
+        .map(|x| (x.0 as u64 + 1, x.1))
+        .map(|x| x.0 * (x.1 .1))
+        .sum();
+    info!("Camel card winnings (with jokers): {result2}");
 }
 
 fn main() {
