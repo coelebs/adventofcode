@@ -9,6 +9,8 @@ edition = "2021"
 env_logger = "*"
 log = "*"
 itertools = "*"
+regex = "*"
+num = "0.4.1"
 
 [lib]
 name = "aoclib"
@@ -34,3 +36,6 @@ name = "day6"
 
 [[bin]]
 name = "day7"
+
+[[bin]]
+name = "day8"
