@@ -1,13 +1,13 @@
 use aoclib::aocinit;
+use log::{debug, info};
 use std::collections::HashSet;
-use log::{info, debug};
 
 #[derive(PartialEq, Hash, Eq, Clone)]
 enum Direction {
     Up,
     Down,
     Left,
-    Right
+    Right,
 }
 
 #[derive(Eq, Hash, PartialEq, Clone)]
@@ -20,64 +20,286 @@ struct Step {
 // .
 fn walk_normal(step: Step, limits: (usize, usize)) -> Option<Step> {
     return match step.direction {
-        Direction::Up => if step.row == 0 { None } else { Some(Step{row: step.row - 1, column: step.column, direction: step.direction})},
-        Direction::Left => if step.column == 0 { None } else { Some(Step{row: step.row, column: step.column - 1, direction: step.direction})},
-        Direction::Down => if step.row == limits.0 { None } else { Some(Step{row: step.row + 1, column: step.column, direction: step.direction})},
-        Direction::Right => if step.column == limits.1 { None } else { Some(Step{row: step.row, column: step.column + 1, direction: step.direction})},
+        Direction::Up => {
+            if step.row == 0 {
+                None
+            } else {
+                Some(Step {
+                    row: step.row - 1,
+                    column: step.column,
+                    direction: step.direction,
+                })
+            }
+        }
+        Direction::Left => {
+            if step.column == 0 {
+                None
+            } else {
+                Some(Step {
+                    row: step.row,
+                    column: step.column - 1,
+                    direction: step.direction,
+                })
+            }
+        }
+        Direction::Down => {
+            if step.row == limits.0 {
+                None
+            } else {
+                Some(Step {
+                    row: step.row + 1,
+                    column: step.column,
+                    direction: step.direction,
+                })
+            }
+        }
+        Direction::Right => {
+            if step.column == limits.1 {
+                None
+            } else {
+                Some(Step {
+                    row: step.row,
+                    column: step.column + 1,
+                    direction: step.direction,
+                })
+            }
+        }
     };
 }
 
 // /
 fn walk_left_mirror(step: Step, limits: (usize, usize)) -> Option<Step> {
     return match step.direction {
-        Direction::Up => if step.column == limits.1 { None } else { Some(Step{row: step.row, column: step.column + 1, direction: Direction::Right})},
-        Direction::Left => if step.row == limits.0 { None } else { Some(Step{row: step.row + 1, column: step.column, direction: Direction::Down})},
-        Direction::Down => if step.column == 0 { None } else { Some(Step{row: step.row, column: step.column - 1, direction: Direction::Left})},
-        Direction::Right => if step.row == 0 { None } else { Some(Step{row: step.row - 1, column: step.column, direction: Direction::Up})},
+        Direction::Up => {
+            if step.column == limits.1 {
+                None
+            } else {
+                Some(Step {
+                    row: step.row,
+                    column: step.column + 1,
+                    direction: Direction::Right,
+                })
+            }
+        }
+        Direction::Left => {
+            if step.row == limits.0 {
+                None
+            } else {
+                Some(Step {
+                    row: step.row + 1,
+                    column: step.column,
+                    direction: Direction::Down,
+                })
+            }
+        }
+        Direction::Down => {
+            if step.column == 0 {
+                None
+            } else {
+                Some(Step {
+                    row: step.row,
+                    column: step.column - 1,
+                    direction: Direction::Left,
+                })
+            }
+        }
+        Direction::Right => {
+            if step.row == 0 {
+                None
+            } else {
+                Some(Step {
+                    row: step.row - 1,
+                    column: step.column,
+                    direction: Direction::Up,
+                })
+            }
+        }
     };
 }
 
 // \
 fn walk_right_mirror(step: Step, limits: (usize, usize)) -> Option<Step> {
     return match step.direction {
-        Direction::Up => if step.column == 0 { None } else { Some(Step{row: step.row, column: step.column - 1, direction: Direction::Left})},
-        Direction::Left => if step.row == 0 { None } else { Some(Step{row: step.row - 1, column: step.column, direction: Direction::Up})},
-        Direction::Down => if step.column == limits.1 { None } else { Some(Step{row: step.row, column: step.column + 1, direction: Direction::Right})},
-        Direction::Right => if step.row == limits.0 { None } else { Some(Step{row: step.row + 1, column: step.column, direction: Direction::Down})},
+        Direction::Up => {
+            if step.column == 0 {
+                None
+            } else {
+                Some(Step {
+                    row: step.row,
+                    column: step.column - 1,
+                    direction: Direction::Left,
+                })
+            }
+        }
+        Direction::Left => {
+            if step.row == 0 {
+                None
+            } else {
+                Some(Step {
+                    row: step.row - 1,
+                    column: step.column,
+                    direction: Direction::Up,
+                })
+            }
+        }
+        Direction::Down => {
+            if step.column == limits.1 {
+                None
+            } else {
+                Some(Step {
+                    row: step.row,
+                    column: step.column + 1,
+                    direction: Direction::Right,
+                })
+            }
+        }
+        Direction::Right => {
+            if step.row == limits.0 {
+                None
+            } else {
+                Some(Step {
+                    row: step.row + 1,
+                    column: step.column,
+                    direction: Direction::Down,
+                })
+            }
+        }
     };
 }
 
 // |
 fn walk_pipe(step: Step, limits: (usize, usize)) -> (Option<Step>, Option<Step>) {
     return match step.direction {
-        Direction::Up => if step.row == 0 { (None, None) } else { (Some(Step{row: step.row - 1, column: step.column, direction: step.direction}), None)},
-        Direction::Down => if step.row == limits.0 { (None, None) } else { (Some(Step{row: step.row + 1, column: step.column, direction: step.direction}), None)},
-        Direction::Left | Direction::Right =>
+        Direction::Up => {
             if step.row == 0 {
-                (Some(Step{row: step.row + 1, column: step.column, direction: Direction::Down}), None)
-            } else if step.row == limits.0 {
-                (Some(Step{row: step.row - 1, column: step.column, direction: Direction::Up}), None)
+                (None, None)
             } else {
-                (Some(Step{row: step.row + 1, column: step.column, direction: Direction::Down}),
-                 Some(Step{row: step.row - 1, column: step.column, direction: Direction::Up}))
-            },
+                (
+                    Some(Step {
+                        row: step.row - 1,
+                        column: step.column,
+                        direction: step.direction,
+                    }),
+                    None,
+                )
+            }
+        }
+        Direction::Down => {
+            if step.row == limits.0 {
+                (None, None)
+            } else {
+                (
+                    Some(Step {
+                        row: step.row + 1,
+                        column: step.column,
+                        direction: step.direction,
+                    }),
+                    None,
+                )
+            }
+        }
+        Direction::Left | Direction::Right => {
+            if step.row == 0 {
+                (
+                    Some(Step {
+                        row: step.row + 1,
+                        column: step.column,
+                        direction: Direction::Down,
+                    }),
+                    None,
+                )
+            } else if step.row == limits.0 {
+                (
+                    Some(Step {
+                        row: step.row - 1,
+                        column: step.column,
+                        direction: Direction::Up,
+                    }),
+                    None,
+                )
+            } else {
+                (
+                    Some(Step {
+                        row: step.row + 1,
+                        column: step.column,
+                        direction: Direction::Down,
+                    }),
+                    Some(Step {
+                        row: step.row - 1,
+                        column: step.column,
+                        direction: Direction::Up,
+                    }),
+                )
+            }
+        }
     };
 }
 
 // -
 fn walk_bar(step: Step, limits: (usize, usize)) -> (Option<Step>, Option<Step>) {
     return match step.direction {
-        Direction::Left => if step.column == 0 { (None, None) } else { (Some(Step{row: step.row, column: step.column - 1, direction: step.direction}), None)},
-        Direction::Right => if step.column == limits.1 { (None, None) } else { (Some(Step{row: step.row, column: step.column + 1, direction: step.direction}), None)},
-        Direction::Down | Direction::Up =>
+        Direction::Left => {
             if step.column == 0 {
-                (Some(Step{row: step.row, column: step.column + 1, direction: Direction::Right}), None)
-            } else if step.column == limits.1 {
-                (Some(Step{row: step.row, column: step.column - 1, direction: Direction::Left}), None)
+                (None, None)
             } else {
-                (Some(Step{row: step.row, column: step.column + 1, direction: Direction::Right}),
-                 Some(Step{row: step.row, column: step.column - 1, direction: Direction::Left}))
-            },
+                (
+                    Some(Step {
+                        row: step.row,
+                        column: step.column - 1,
+                        direction: step.direction,
+                    }),
+                    None,
+                )
+            }
+        }
+        Direction::Right => {
+            if step.column == limits.1 {
+                (None, None)
+            } else {
+                (
+                    Some(Step {
+                        row: step.row,
+                        column: step.column + 1,
+                        direction: step.direction,
+                    }),
+                    None,
+                )
+            }
+        }
+        Direction::Down | Direction::Up => {
+            if step.column == 0 {
+                (
+                    Some(Step {
+                        row: step.row,
+                        column: step.column + 1,
+                        direction: Direction::Right,
+                    }),
+                    None,
+                )
+            } else if step.column == limits.1 {
+                (
+                    Some(Step {
+                        row: step.row,
+                        column: step.column - 1,
+                        direction: Direction::Left,
+                    }),
+                    None,
+                )
+            } else {
+                (
+                    Some(Step {
+                        row: step.row,
+                        column: step.column + 1,
+                        direction: Direction::Right,
+                    }),
+                    Some(Step {
+                        row: step.row,
+                        column: step.column - 1,
+                        direction: Direction::Left,
+                    }),
+                )
+            }
+        }
     };
 }
 
@@ -89,8 +311,16 @@ fn walk(step: Step, maze: &Vec<Vec<char>>, steps: &mut HashSet<Step>, limits: (u
         '.' => next.push(walk_normal(step, limits)),
         '/' => next.push(walk_left_mirror(step, limits)),
         '\\' => next.push(walk_right_mirror(step, limits)),
-        '|' => { let both = walk_pipe(step, limits); next.push(both.0); next.push(both.1) },
-        '-' => { let both = walk_bar(step, limits); next.push(both.0); next.push(both.1) },
+        '|' => {
+            let both = walk_pipe(step, limits);
+            next.push(both.0);
+            next.push(both.1)
+        }
+        '-' => {
+            let both = walk_bar(step, limits);
+            next.push(both.0);
+            next.push(both.1)
+        }
         _ => panic!("Huh"),
     };
 
@@ -106,18 +336,18 @@ fn walk(step: Step, maze: &Vec<Vec<char>>, steps: &mut HashSet<Step>, limits: (u
     }
 }
 
-fn day16(input: String) {
-    let maze: Vec<Vec<char>> = input.lines().map(|x| x.chars().collect()).collect();
+fn energized_fields(firststep: Step, maze: &Vec<Vec<char>>) -> usize {
     let mut steps: HashSet<Step> = HashSet::new();
     let limits = (maze.len() - 1, maze[0].len() - 1);
-
-    let firststep = Step{row: 0, column: 0, direction: Direction::Right};
     steps.insert(firststep.clone());
     walk(firststep, &maze, &mut steps, limits);
-    let result1 = steps.iter().map(|x| (x.row, x.column)).collect::<HashSet<(usize, usize)>>();
-    for i in 0..limits.0+1 {
-        for j in 0..limits.1+1 {
-            if result1.contains(&(i,j)) {
+    let result1 = steps
+        .iter()
+        .map(|x| (x.row, x.column))
+        .collect::<HashSet<(usize, usize)>>();
+    for i in 0..limits.0 + 1 {
+        for j in 0..limits.1 + 1 {
+            if result1.contains(&(i, j)) {
                 print!("#");
             } else {
                 print!(".");
@@ -125,7 +355,66 @@ fn day16(input: String) {
         }
         println!("");
     }
-    info!("Number of energized fields: {}", result1.len());
+    return result1.len();
+}
+
+fn day16(input: String) {
+    let maze: Vec<Vec<char>> = input.lines().map(|x| x.chars().collect()).collect();
+
+    let mut max = 0;
+    for i in 0..maze.len() {
+        for j in 0..maze.len() {
+            if j == 0 {
+                let firststep = Step {
+                    row: i,
+                    column: j,
+                    direction: Direction::Right,
+                };
+                let result = energized_fields(firststep, &maze);
+                if result > max {
+                    max = result;
+                }
+                info!("Energized fields when starting top left: {result}");
+            }
+
+            if i == 0 {
+                let firststep = Step {
+                    row: i,
+                    column: j,
+                    direction: Direction::Down,
+                };
+                let result = energized_fields(firststep, &maze);
+                if result > max {
+                    max = result;
+                }
+            }
+
+            if i == maze.len() - 1 {
+                let firststep = Step {
+                    row: i,
+                    column: j,
+                    direction: Direction::Up,
+                };
+                let result = energized_fields(firststep, &maze);
+                if result > max {
+                    max = result;
+                }
+            }
+
+            if j == maze[0].len() - 1 {
+                let firststep = Step {
+                    row: i,
+                    column: j,
+                    direction: Direction::Left,
+                };
+                let result = energized_fields(firststep, &maze);
+                if result > max {
+                    max = result;
+                }
+            }
+        }
+    }
+    info!("Max energised squares: {max}");
 }
 
 fn main() {
